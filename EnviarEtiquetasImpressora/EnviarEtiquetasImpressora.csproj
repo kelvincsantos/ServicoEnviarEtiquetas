@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-EnviarEtiquetasImpressora-a68052f1-c182-4ce1-93cb-93cdbb79340e</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Projeto_Nucleo\Nucleo.Data\Nucleo.Data.csproj" />
+    <ProjectReference Include="..\Projeto_Nucleo\Nucleo.Operacoes\Nucleo.Operacoes.csproj" />
+  </ItemGroup>
+</Project>
