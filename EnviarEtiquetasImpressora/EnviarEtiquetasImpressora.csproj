@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Projeto_Nucleo\Nucleo.Data\Nucleo.Data.csproj" />
-    <ProjectReference Include="..\Projeto_Nucleo\Nucleo.Operacoes\Nucleo.Operacoes.csproj" />
+    <ProjectReference Include="..\..\Projeto_Nucleo\Nucleo.Data\Nucleo.Data.csproj" />
+    <ProjectReference Include="..\..\Projeto_Nucleo\Nucleo.Operacoes\Nucleo.Operacoes.csproj" />
   </ItemGroup>
 </Project>

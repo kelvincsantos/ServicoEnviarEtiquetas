@@ -11,17 +11,19 @@ namespace EnviarEtiquetasImpressora
     public class Etiquetas
     {
         public List<Nucleo.Data.Etiqueta> Impressoes { get; set; }
-
+        public Nucleo.Base.SQL.SQL? Banco;
 
         public Etiquetas() 
         {
+
             Impressoes = new List<Nucleo.Data.Etiqueta>();
             BuscarImpressoes();
         }
 
         private void BuscarImpressoes()
         {
-            
+            Nucleo.Operacoes.BO.Etiquetas BO = new Nucleo.Operacoes.BO.Etiquetas();
+            Impressoes = BO.BuscarPendentesDeImpressao();
         }
 
         public bool TemImpressaoPendente()
@@ -33,9 +35,9 @@ namespace EnviarEtiquetasImpressora
         {
             foreach (Nucleo.Data.Etiqueta item in Impressoes) 
             {
-                EtiquetaPPLA PPLA = new EtiquetaPPLA(""); //ENVIAR O IP DA IMPRESSORA
+                EtiquetaPPLA PPLA = new EtiquetaPPLA("", 0, ""); //ENVIAR O IP DA IMPRESSORA
 
-                string impressao = PPLA.GerarImpressao(item);
+                bool impressao = PPLA.GerarImpressao(item);
 
                 PPLA.Imprimir();
             }
@@ -44,33 +46,33 @@ namespace EnviarEtiquetasImpressora
 }
 
 
-using System.Data.Common;
-using LATROMI.Extensions;
+//using System.Data.Common;
+//using LATROMI.Extensions;
 
-var ip = (string)Variables["ip"].Value;
-var porta = (int)Variables["porta"].Value;
-var temperatura = (string)Variables["temperatura"].Value;
-var comando = (string)Fields["txtComando"].Value;
+//var ip = (string)Variables["ip"].Value;
+//var porta = (int)Variables["porta"].Value;
+//var temperatura = (string)Variables["temperatura"].Value;
+//var comando = (string)Fields["txtComando"].Value;
 
-if (string.IsNullOrEmpty(ip))
-    throw new InvalidOperationException("Impressora não informada.");
+//if (string.IsNullOrEmpty(ip))
+//    throw new InvalidOperationException("Impressora não informada.");
 
-if (string.IsNullOrEmpty(temperatura))
-    throw new InvalidOperationException("Temperatura não informada.");
+//if (string.IsNullOrEmpty(temperatura))
+//    throw new InvalidOperationException("Temperatura não informada.");
 
-if (string.IsNullOrEmpty(comando))
-    throw new InvalidOperationException("Informe um comando para enviar para a impressora.");
+//if (string.IsNullOrEmpty(comando))
+//    throw new InvalidOperationException("Informe um comando para enviar para a impressora.");
 
-using (var client = new System.Net.Sockets.TcpClient())
-{
-    var serverEndPoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(ip), porta);
-    client.Connect(serverEndPoint);
+//using (var client = new System.Net.Sockets.TcpClient())
+//{
+//    var serverEndPoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(ip), porta);
+//    client.Connect(serverEndPoint);
 
-    using (var clientStream = client.GetStream())
-    {
-        var encoder = new System.Text.ASCIIEncoding();
-        byte[] buffer = encoder.GetBytes(comando);
-        clientStream.Write(buffer, 0, buffer.Length);
-        clientStream.Flush();
-    }
-}
+//    using (var clientStream = client.GetStream())
+//    {
+//        var encoder = new System.Text.ASCIIEncoding();
+//        byte[] buffer = encoder.GetBytes(comando);
+//        clientStream.Write(buffer, 0, buffer.Length);
+//        clientStream.Flush();
+//    }
+//}

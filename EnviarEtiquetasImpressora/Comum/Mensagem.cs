@@ -37,5 +37,11 @@ namespace EnviarEtiquetasImpressora.Comum
         {
             Console.WriteLine(DateTime.Now.ToString() + ": " + e);
         }
+
+        public static string? Request(String e)
+        {
+            Console.WriteLine(DateTime.Now.ToString() + ": " + e);
+            return Console.ReadLine();
+        }
     }
 }
