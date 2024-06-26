@@ -1,24 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
+﻿using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace EnviarEtiquetasImpressora.Perifericos
 {
-    public  class EtiquetaPPLA
+    public class EtiquetaPPLA
     {
+        private string inicio = "<STX>";
+        private string finalLinha = "<CR>";
+
         public string IP { get; set; }
         public int Porta { get; set; }
-        public string Temperatura { get; set; }
 
         public List<string> comandos { get; set; }
 
-        public EtiquetaPPLA(string IP, int Porta, string Temperatura)
+        public Exception erro { get; set; }
+
+        public EtiquetaPPLA(string IP, int Porta)
         {
+
             this.IP = IP;
-            this.Temperatura = Temperatura;
             this.Porta = Porta;
 
             this.comandos = new List<string>();
@@ -29,16 +29,24 @@ namespace EnviarEtiquetasImpressora.Perifericos
             try
             {
                 this.comandos = new List<string>();
-                comandos.Add(etiqueta.NumeroIdentificacao);
-                comandos.Add(etiqueta.DiretorioLaudo);
-                comandos.Add(etiqueta.DataCalibracao.GetValueOrDefault().ToShortDateString());
-                comandos.Add(etiqueta.ProximaCalibracao.GetValueOrDefault().ToShortDateString());
+                comandos.Add(inicio + "L" + finalLinha);
+                comandos.Add("111100000820065" + etiqueta.DataCalibracao.GetValueOrDefault().ToShortDateString() + finalLinha);
+                comandos.Add("111100000620065" + etiqueta.NumeroCertificado + finalLinha);
+                comandos.Add("111100000400065" + etiqueta.NumeroIdentificacao + finalLinha);
+                comandos.Add("111100000200065" + etiqueta.ProximaCalibracao.GetValueOrDefault().ToShortDateString() + finalLinha);
 
+                //codigo de barras
+                //1v000000500040010200025QA
+                //1v1100000250150
+                comandos.Add("1W1D33000002501700,LA," + etiqueta.DiretorioLaudo + finalLinha);
+
+                comandos.Add("E" + finalLinha);
                 return true;
             }
             catch (Exception ex)
             {
                 Comum.Mensagem.Log("Erro ao gerar comando de impressão", ex);
+                erro = ex;
                 return false;
             }
 
@@ -46,28 +54,62 @@ namespace EnviarEtiquetasImpressora.Perifericos
 
         public bool Imprimir()
         {
-            using (var client = new System.Net.Sockets.TcpClient())
+            try
             {
-                var serverEndPoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(IP), Porta);
-                client.Connect(serverEndPoint);
-
-                using (var clientStream = client.GetStream())
+                using (Comunicacao TCP = new Comunicacao(IP, Porta))
                 {
-                    var encoder = new System.Text.ASCIIEncoding();
-                    
+                    string enviar = string.Empty;
                     foreach (string comando in comandos)
                     {
-                        byte[] buffer = encoder.GetBytes(comando);
-                        clientStream.Write(buffer, 0, buffer.Length);
+                        enviar += comando;
                     }
-                    
-                    
-                    clientStream.Flush();
+
+                    TCP.EnviarComandoPPLA(enviar);
                 }
+
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Comum.Mensagem.Log("Erro ao enviar comandos para a impressora", ex);
+                erro = ex;
+                return false;
+            }           
+        }
+
+        class Comunicacao : IDisposable
+        {
+            private TcpClient _tcpClient;
+            private NetworkStream _networkStream;
+
+            public Comunicacao(string enderecoIP, int porta)
+            {
+                _tcpClient = new TcpClient();
+                _tcpClient.Connect(enderecoIP, porta);
+                _networkStream = _tcpClient.GetStream();
             }
 
-            return true;
+            public void EnviarComandoPPLA(string comandoPPLA)
+            {
+                byte[] bytes = Encoding.ASCII.GetBytes(ReplaceControlCharacters(comandoPPLA));
+                _networkStream.Write(bytes, 0, bytes.Length);
+            }
+
+            private string ReplaceControlCharacters(string input)
+            {
+                return input
+                    .Replace("<STX>", ((char)2).ToString())  // Start of Text
+                    .Replace("<CR>", ((char)13).ToString()); // Carriage Return
+            }
+
+            public void Dispose()
+            {
+                _networkStream.Close();
+                _tcpClient.Close();
+            }
         }
+
 
 
         public class Comandos
@@ -126,7 +168,7 @@ namespace EnviarEtiquetasImpressora.Perifericos
                 Multiplicador_7 = 7,
                 Multiplicador_8 = 8,
                 Multiplicador_9 = 9,
-                
+
             }
 
             public enum LarguraCodigoBarras
@@ -160,8 +202,8 @@ namespace EnviarEtiquetasImpressora.Perifericos
 
             public string TextoNormal(string comando, int x, int y)
             {
-                return string.Concat(this.orientacao 
-                    , this.fonte 
+                return string.Concat(this.orientacao
+                    , this.fonte
                     , this.multiplicadorHorizontal
                     , ((int)this.multiplicadorVertical).ToString()
                     , ((int)this.fonteVariacao).ToString().PadLeft(3, '0')
@@ -172,7 +214,7 @@ namespace EnviarEtiquetasImpressora.Perifericos
 
             public string CodigoBarras(string conteudo, int x, int y)
             {
-                return string.Concat(this.orientacao 
+                return string.Concat(this.orientacao
                     , "A"   //TIPO DE CODIGO DE BARRAS, CONSULTAR TABELA INTERNACIONAL
                     );
             }

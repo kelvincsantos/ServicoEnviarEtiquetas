@@ -1,0 +1,6 @@
+06/06/2024 17:25:10: Erro ao executar serviço: # Once the socket has been disconnected, you can only reconnect again asynchronously, and only to a different EndPoint.  BeginConnect must be called on a thread that won't exit until the operation has been completed.
+25/06/2024 12:40:05: Erro ao executar serviço: # Data is Null. This method or property cannot be called on Null values.
+26/06/2024 17:32:26: Erro ao enviar comandos para a impressora # Uma tentativa de conexão falhou porque o componente conectado não respondeu
+corretamente após um período de tempo ou a conexão estabelecida falhou
+porque o host conectado não respondeu. [::ffff:192.168.1.138]:9100
+

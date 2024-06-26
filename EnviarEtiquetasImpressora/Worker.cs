@@ -39,7 +39,7 @@ namespace EnviarEtiquetasImpressora
 
             if(LogarBanco())
             {
-                Etiquetas etiquetas = new Etiquetas();
+                Etiquetas etiquetas = new Etiquetas(banco);
 
                 if (etiquetas.TemImpressaoPendente())
                     etiquetas.EnviarImpressaoEtiqueta();

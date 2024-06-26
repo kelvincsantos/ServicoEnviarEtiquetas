@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using EnviarEtiquetasImpressora.Perifericos;
 
 namespace EnviarEtiquetasImpressora
@@ -14,15 +15,24 @@ namespace EnviarEtiquetasImpressora
         public Nucleo.Base.SQL.SQL? Banco;
 
         public Etiquetas() 
+        {   
+            Iniciar();
+        }
+        public Etiquetas(Nucleo.Base.SQL.SQL? banco)
         {
+            Banco = banco;
+            Iniciar();
+        }
 
+        private void Iniciar()
+        {
             Impressoes = new List<Nucleo.Data.Etiqueta>();
             BuscarImpressoes();
         }
 
         private void BuscarImpressoes()
         {
-            Nucleo.Operacoes.BO.Etiquetas BO = new Nucleo.Operacoes.BO.Etiquetas();
+            Nucleo.Operacoes.BO.Etiquetas BO = new Nucleo.Operacoes.BO.Etiquetas(Banco);
             Impressoes = BO.BuscarPendentesDeImpressao();
         }
 
@@ -33,46 +43,33 @@ namespace EnviarEtiquetasImpressora
 
         public void EnviarImpressaoEtiqueta()
         {
+            Nucleo.Data.Configuracao conf = new Nucleo.Operacoes.BO.Configuracao(Banco).BuscarConfiguracao();
+
             foreach (Nucleo.Data.Etiqueta item in Impressoes) 
             {
-                EtiquetaPPLA PPLA = new EtiquetaPPLA("", 0, ""); //ENVIAR O IP DA IMPRESSORA
+                EtiquetaPPLA PPLA = new EtiquetaPPLA(conf.IP_Impressora, Convert.ToInt32(conf.Porta_Impressora)); //ENVIAR O IP DA IMPRESSORA
 
+                Nucleo.Operacoes.BO.FilaImpressao BO = new Nucleo.Operacoes.BO.FilaImpressao(Banco);
                 bool impressao = PPLA.GerarImpressao(item);
 
-                PPLA.Imprimir();
+                Nucleo.Data.FilaImpressao fila = BO.BuscarPorEtiqueta(item.ID);
+
+                if (PPLA.Imprimir())
+                {
+                    fila.Impressao = DateTime.Now;
+                    fila.Concluido = true;
+                    fila.Erro = string.Empty;
+                }
+                else
+                {
+                    fila.Concluido = false;
+                    fila.Impressao = null;
+                    fila.Erro = PPLA.erro.Message;
+                }
+
+                BO.Alterar(fila);
+                
             }
         }
     }
 }
-
-
-//using System.Data.Common;
-//using LATROMI.Extensions;
-
-//var ip = (string)Variables["ip"].Value;
-//var porta = (int)Variables["porta"].Value;
-//var temperatura = (string)Variables["temperatura"].Value;
-//var comando = (string)Fields["txtComando"].Value;
-
-//if (string.IsNullOrEmpty(ip))
-//    throw new InvalidOperationException("Impressora não informada.");
-
-//if (string.IsNullOrEmpty(temperatura))
-//    throw new InvalidOperationException("Temperatura não informada.");
-
-//if (string.IsNullOrEmpty(comando))
-//    throw new InvalidOperationException("Informe um comando para enviar para a impressora.");
-
-//using (var client = new System.Net.Sockets.TcpClient())
-//{
-//    var serverEndPoint = new System.Net.IPEndPoint(System.Net.IPAddress.Parse(ip), porta);
-//    client.Connect(serverEndPoint);
-
-//    using (var clientStream = client.GetStream())
-//    {
-//        var encoder = new System.Text.ASCIIEncoding();
-//        byte[] buffer = encoder.GetBytes(comando);
-//        clientStream.Write(buffer, 0, buffer.Length);
-//        clientStream.Flush();
-//    }
-//}
