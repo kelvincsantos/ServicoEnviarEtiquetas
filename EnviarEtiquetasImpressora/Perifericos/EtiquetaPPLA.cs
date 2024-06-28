@@ -31,14 +31,14 @@ namespace EnviarEtiquetasImpressora.Perifericos
                 this.comandos = new List<string>();
                 comandos.Add(inicio + "L" + finalLinha);
                 comandos.Add("111100000820065" + etiqueta.DataCalibracao.GetValueOrDefault().ToShortDateString() + finalLinha);
-                comandos.Add("111100000620065" + etiqueta.NumeroCertificado + finalLinha);
-                comandos.Add("111100000400065" + etiqueta.NumeroIdentificacao + finalLinha);
+                comandos.Add("101100000620065" + etiqueta.NumeroCertificado + finalLinha);
+                comandos.Add("101100000400065" + etiqueta.NumeroIdentificacao + finalLinha);
                 comandos.Add("111100000200065" + etiqueta.ProximaCalibracao.GetValueOrDefault().ToShortDateString() + finalLinha);
 
                 //codigo de barras
                 //1v000000500040010200025QA
                 //1v1100000250150
-                comandos.Add("1W1D33000002501700,LA," + etiqueta.DiretorioLaudo + finalLinha);
+                comandos.Add("1W1D22000002201630,LA," + etiqueta.DiretorioLaudo + finalLinha);
 
                 comandos.Add("E" + finalLinha);
                 return true;

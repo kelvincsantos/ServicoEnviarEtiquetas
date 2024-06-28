@@ -1,9 +1,17 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
+using SkiaSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Security.Claims;
 using System.Text;
+using PDF = ceTe.DynamicPDF;
+using PDF_Page = ceTe.DynamicPDF.PageElements;
 using System.Threading.Tasks;
+using IO = System.IO;
 
 namespace EnviarEtiquetasImpressora.Comum
 {
@@ -14,8 +22,8 @@ namespace EnviarEtiquetasImpressora.Comum
         private const string Banco = "Caixa.conf";
         private const string Assinatura = "APIS.conf";
 
-        private readonly string dirBanco = Path.Combine(Diretorio, Banco);
-        private readonly string dirAssinatura = Path.Combine(Diretorio, Assinatura);
+        private readonly string dirBanco = IO.Path.Combine(Diretorio, Banco);
+        private readonly string dirAssinatura = IO.Path.Combine(Diretorio, Assinatura);
 
         private Nucleo.Base.Seguranca.Criptografia Criptografia;
 
@@ -151,6 +159,26 @@ namespace EnviarEtiquetasImpressora.Comum
         {
             if (File.Exists(arquivo))
                 File.Delete(arquivo);
+        }
+
+
+        public static void CriarArquivoPDFVazio(string nomeArquivo)
+        {
+            PDF.Document document = new PDF.Document();
+
+            PDF.Page page = new PDF.Page(PDF.PageSize.Letter, PDF.PageOrientation.Portrait, 54.0f);
+            document.Pages.Add(page);
+
+            string labelText = "Arquivo em processo de geração...";
+            PDF_Page.Label label = new PDF_Page.Label(labelText, 0, 0, 504, 100, PDF.Font.Helvetica, 18, PDF.TextAlign.Center);
+            page.Elements.Add(label);
+
+            document.Draw(nomeArquivo);
+        }
+
+        public static string PegarNomeArquivo(string Diretorio)
+        {
+            return Diretorio.Split('\\').Last();
         }
     }
 }
