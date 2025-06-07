@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-AtualizarBaseEstrutural-d4797db0-2c6f-4f40-b96f-d84756c4d3fb</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Projeto_Nucleo\Base\Nucleo.Base.csproj" />
+    <ProjectReference Include="..\..\Projeto_Nucleo\Nucleo.Data\Nucleo.Data.csproj" />
+    <ProjectReference Include="..\..\Projeto_Nucleo\Nucleo.Operacoes\Nucleo.Operacoes.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DB\DDL\" />
+    <Folder Include="DB\DML\" />
+  </ItemGroup>
+</Project>
